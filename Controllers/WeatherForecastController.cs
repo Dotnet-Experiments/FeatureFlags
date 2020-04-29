@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace FeatureFlags.Controllers
 {
@@ -73,6 +74,19 @@ namespace FeatureFlags.Controllers
                         Summary = Summaries[rng.Next(Summaries.Length)]
                 })
                 .ToArray();
+        }
+
+        [HttpGet("cloudcover")]
+        [FeatureGate(FeatureManagement.EnableCloudCoverEndpoint)]
+        public async Task<string> GetCloudCover()
+        {
+            await LogFeatureFlags();
+            if (!await _featureManager.IsEnabledAsync(nameof(FeatureManagement.EnableCloudCoverEndpoint)))
+            {
+                throw new NotImplementedException($"{nameof(GetLocalWeather)} is not enabled");
+            }
+
+            return $"{nameof(GetCloudCover)}";
         }
     }
 }
